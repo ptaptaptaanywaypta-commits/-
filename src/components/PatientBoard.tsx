@@ -4,20 +4,18 @@ import { PatientCard } from "./PatientCard";
 
 type PatientBoardProps = {
   patients: Patient[];
+  selectedMonth: string;
   currentMonth: string;
   onToggleProgress: (patientId: string, month: string, key: PatientProgressKey) => void;
-  onCreateCurrentMonth: (patientId: string) => void;
-  onShowHistory: (patientId: string) => void;
   onUpdateMemo: (id: string, memo: string) => void;
   onDeletePatient: (id: string) => void;
 };
 
 export const PatientBoard = ({
   patients,
+  selectedMonth,
   currentMonth,
   onToggleProgress,
-  onCreateCurrentMonth,
-  onShowHistory,
   onUpdateMemo,
   onDeletePatient
 }: PatientBoardProps) => {
@@ -25,7 +23,7 @@ export const PatientBoard = ({
     return (
       <section className="empty-state">
         <h2>表示できる患者がいません</h2>
-        <p>絞り込みを解除するか、患者を追加してください。</p>
+        <p>月を切り替えるか、絞り込みを解除してください。</p>
       </section>
     );
   }
@@ -36,11 +34,10 @@ export const PatientBoard = ({
         <PatientCard
           key={patient.id}
           patient={patient}
-          currentRecord={getRecordByMonth(patient, currentMonth)}
+          currentRecord={getRecordByMonth(patient, selectedMonth)}
+          selectedMonth={selectedMonth}
           pastIncompleteCount={getPastIncompleteCount(patient, currentMonth)}
           onToggleProgress={onToggleProgress}
-          onCreateCurrentMonth={onCreateCurrentMonth}
-          onShowHistory={onShowHistory}
           onUpdateMemo={onUpdateMemo}
           onDeletePatient={onDeletePatient}
         />

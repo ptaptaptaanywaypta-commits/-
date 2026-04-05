@@ -1,8 +1,7 @@
-﻿import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { samplePatients } from "../data/samplePatients";
 import type { Patient, PatientProgressKey } from "../types";
 import {
-  buildSummaryStats,
   createEmptyPatient,
   createMonthlyRecord,
   fromCsv,
@@ -40,22 +39,6 @@ export const usePatientBoard = () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(patients));
   }, [patients]);
 
-  const visiblePatients = useMemo(
-    () =>
-      showIncompleteOnly
-        ? patients.filter((patient) => {
-            const currentRecord = getRecordByMonth(patient, currentMonth);
-            return !currentRecord || !(currentRecord.documentCreated && currentRecord.signed && currentRecord.submitted);
-          })
-        : patients,
-    [currentMonth, patients, showIncompleteOnly]
-  );
-
-  const summary = useMemo(
-    () => buildSummaryStats(patients, currentMonth),
-    [currentMonth, patients]
-  );
-
   const addPatient = (input: ReturnType<typeof createEmptyPatient>) => {
     const nextPatient: Patient = {
       id: crypto.randomUUID(),
@@ -81,7 +64,7 @@ export const usePatientBoard = () => {
               }
             : patient
         ),
-        currentMonth
+        month
       )
     );
   };
@@ -102,30 +85,39 @@ export const usePatientBoard = () => {
             ])
           };
         }),
-        currentMonth
+        month
+      )
+    );
+  };
+
+  const createMonthlyRecordsForAll = (month = currentMonth) => {
+    setPatients((current) =>
+      sortPatients(
+        current.map((patient) =>
+          getRecordByMonth(patient, month)
+            ? patient
+            : {
+                ...patient,
+                monthlyRecords: sortMonthlyRecords([
+                  ...patient.monthlyRecords,
+                  createMonthlyRecord(month)
+                ])
+              }
+        ),
+        month
       )
     );
   };
 
   const updateMemo = (id: string, memo: string) => {
     setPatients((current) =>
-      sortPatients(
-        current.map((patient) =>
-          patient.id === id
-            ? {
-                ...patient,
-                memo,
-                monthlyRecords: sortMonthlyRecords(
-                  patient.monthlyRecords.map((record) =>
-                    record.month === currentMonth
-                      ? { ...record, updatedAt: new Date().toISOString() }
-                      : record
-                  )
-                )
-              }
-            : patient
-        ),
-        currentMonth
+      current.map((patient) =>
+        patient.id === id
+          ? {
+              ...patient,
+              memo
+            }
+          : patient
       )
     );
   };
@@ -146,13 +138,12 @@ export const usePatientBoard = () => {
   return {
     currentMonth,
     patients,
-    visiblePatients,
-    summary,
     showIncompleteOnly,
     setShowIncompleteOnly,
     addPatient,
     toggleProgress,
     createMonthlyRecordForPatient,
+    createMonthlyRecordsForAll,
     updateMemo,
     deletePatient,
     importFromCsv,

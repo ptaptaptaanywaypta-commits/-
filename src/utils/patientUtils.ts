@@ -95,6 +95,21 @@ export const sortPatients = (
     return new Date(bUpdated).getTime() - new Date(aUpdated).getTime();
   });
 
+export const getAvailableMonths = (
+  patients: Patient[],
+  fallbackMonth = getCurrentMonth()
+): string[] => {
+  const monthSet = new Set<string>([fallbackMonth]);
+
+  patients.forEach((patient) => {
+    patient.monthlyRecords.forEach((record) => {
+      monthSet.add(record.month);
+    });
+  });
+
+  return [...monthSet].sort((a, b) => b.localeCompare(a));
+};
+
 export const calculateDaysSinceStart = (rehabStartDate: string): number => {
   const start = new Date(rehabStartDate);
   const today = new Date();
