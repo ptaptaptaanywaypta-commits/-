@@ -1,4 +1,4 @@
-﻿import { useMemo, useRef, useState } from "react";
+﻿import { useEffect, useMemo, useRef, useState } from "react";
 import { AddPatientForm } from "./components/AddPatientForm";
 import { PatientBoard } from "./components/PatientBoard";
 import { SummaryBar, type SummaryFilterKey } from "./components/SummaryBar";
@@ -13,14 +13,26 @@ import {
   sortPatients
 } from "./utils/patientUtils";
 
+const SELECTED_MONTH_STORAGE_KEY = "selected-month-page";
+
 const App = () => {
   const { currentMonth, patients, addPatient, toggleProgress, createMonthlyRecordsForAll, updateMemo, deletePatient } =
     usePatientBoard();
   const [message, setMessage] = useState("");
-  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+  const [selectedMonth, setSelectedMonth] = useState(() => {
+    if (typeof window === "undefined") {
+      return currentMonth;
+    }
+
+    return window.localStorage.getItem(SELECTED_MONTH_STORAGE_KEY) ?? currentMonth;
+  });
   const [isMonthMenuOpen, setIsMonthMenuOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState<SummaryFilterKey | null>(null);
   const messageTimeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    window.localStorage.setItem(SELECTED_MONTH_STORAGE_KEY, selectedMonth);
+  }, [selectedMonth]);
 
   const nextMonth = useMemo(() => shiftMonth(currentMonth, 1), [currentMonth]);
   const months = useMemo(() => getAvailableMonths(patients, currentMonth), [currentMonth, patients]);

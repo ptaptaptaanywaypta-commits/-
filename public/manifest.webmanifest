@@ -1,0 +1,26 @@
+﻿{
+  "name": "計画書進捗ボード",
+  "short_name": "進捗ボード",
+  "description": "月次の計画書進捗をスマホで見やすく管理するPWA",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#eef6ff",
+  "theme_color": "#1d66d1",
+  "lang": "ja",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
