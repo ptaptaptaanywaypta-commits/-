@@ -51,25 +51,25 @@ button {
 .app-shell {
   width: min(1380px, calc(100% - 20px));
   margin: 0 auto;
-  padding: 18px 0 28px;
+  padding: 16px 0 24px;
 }
 
 .hero {
   display: flex;
   justify-content: space-between;
-  gap: 16px;
+  gap: 14px;
   align-items: center;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(234, 244, 255, 0.95));
   border: 1px solid rgba(200, 220, 240, 0.9);
-  border-radius: 24px;
-  padding: 18px 20px;
+  border-radius: 22px;
+  padding: 16px 18px;
   box-shadow: var(--shadow);
 }
 
 .hero__main {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
 }
 
 .hero h1,
@@ -93,21 +93,21 @@ button {
   min-width: 170px;
   display: grid;
   gap: 2px;
-  padding: 12px 14px;
+  padding: 10px 12px;
   background: rgba(27, 103, 207, 0.08);
-  border-radius: 16px;
+  border-radius: 14px;
 }
 
 .menu-button {
-  width: 46px;
-  height: 46px;
+  width: 44px;
+  height: 44px;
   border: 1px solid var(--border);
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.88);
   display: grid;
   align-content: center;
   gap: 5px;
-  padding: 0 11px;
+  padding: 0 10px;
 }
 
 .menu-button span {
@@ -134,12 +134,16 @@ button {
 }
 
 .month-menu__header {
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .month-menu__header h2,
 .month-menu__header p {
   margin: 0;
+}
+
+.month-menu__bulk-button {
+  margin-bottom: 12px;
 }
 
 .month-menu__list {
@@ -152,7 +156,7 @@ button {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  min-height: 48px;
+  min-height: 46px;
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 0 14px;
@@ -175,8 +179,8 @@ button {
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 10px;
-  margin: 14px 0;
+  gap: 8px;
+  margin: 12px 0;
 }
 
 .summary-card,
@@ -185,12 +189,13 @@ button {
 .empty-state {
   background: var(--surface);
   border: 1px solid rgba(212, 226, 240, 0.95);
-  border-radius: 20px;
+  border-radius: 18px;
   box-shadow: var(--shadow);
 }
 
 .summary-card {
-  padding: 14px 16px;
+  padding: 12px 12px;
+  text-align: left;
 }
 
 .summary-card p,
@@ -200,8 +205,13 @@ button {
 
 .summary-card strong {
   display: block;
-  margin-top: 4px;
-  font-size: 1.45rem;
+  margin-top: 3px;
+  font-size: 1.3rem;
+}
+
+.summary-card.is-active {
+  border-color: rgba(29, 102, 209, 0.55);
+  box-shadow: 0 0 0 2px rgba(29, 102, 209, 0.12), var(--shadow);
 }
 
 .summary-card--primary {
@@ -215,44 +225,43 @@ button {
 .layout-grid {
   display: grid;
   grid-template-columns: 300px minmax(0, 1fr);
-  gap: 14px;
+  gap: 12px;
   align-items: start;
 }
 
 .layout-grid__side {
   display: grid;
-  gap: 14px;
+  gap: 12px;
   position: sticky;
   top: 14px;
 }
 
 .panel,
 .empty-state {
-  padding: 16px;
+  padding: 14px;
 }
 
 .panel-heading {
   display: flex;
   justify-content: space-between;
   gap: 10px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
-.patient-form,
-.toolbar {
+.patient-form {
   display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
 .patient-form label,
 .memo-field {
   display: grid;
-  gap: 5px;
+  gap: 4px;
 }
 
 .patient-form span,
 .memo-field span {
-  font-size: 0.86rem;
+  font-size: 0.82rem;
   font-weight: 700;
   color: #35516c;
 }
@@ -264,7 +273,7 @@ textarea {
   border: 1px solid var(--border);
   border-radius: 14px;
   background: var(--surface-strong);
-  padding: 12px 13px;
+  padding: 10px 12px;
   color: inherit;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -279,117 +288,71 @@ textarea:focus {
 
 textarea {
   resize: vertical;
-  min-height: 44px;
+  min-height: 38px;
 }
 
 .primary-button,
-.secondary-button,
-.ghost-button,
 .delete-button,
 .progress-toggle {
   border: none;
   border-radius: 14px;
-  min-height: 48px;
   transition:
     transform 0.16s ease,
     background-color 0.16s ease,
     box-shadow 0.16s ease;
 }
 
-.primary-button,
-.secondary-button,
-.ghost-button {
+.primary-button {
   width: 100%;
+  min-height: 46px;
   padding: 0 14px;
   font-weight: 700;
-}
-
-.primary-button {
   background: linear-gradient(135deg, var(--primary), var(--primary-strong));
   color: white;
   box-shadow: 0 10px 22px rgba(22, 83, 172, 0.22);
 }
 
-.secondary-button {
-  background: #e8f1fd;
-  color: var(--primary-strong);
-}
-
-.ghost-button {
-  background: transparent;
-  border: 1px solid var(--border);
-  color: #35516c;
-}
-
-.secondary-button--file {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.secondary-button--file input {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-}
-
-.switch-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
-  border-radius: 14px;
-  background: var(--neutral-bg);
-  font-weight: 700;
-}
-
-.switch-row input {
-  width: 18px;
-  height: 18px;
-}
-
 .board-header {
   display: flex;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
   align-items: flex-end;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .board-header__title-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .board-header__actions {
   display: grid;
-  gap: 10px;
+  gap: 8px;
   justify-items: end;
-}
-
-.board-header__bulk-button {
-  width: auto;
-  min-width: 220px;
 }
 
 .selected-month-badge {
   display: inline-flex;
   align-items: center;
-  min-height: 28px;
-  padding: 0 10px;
+  min-height: 26px;
+  padding: 0 9px;
   border-radius: 999px;
   background: #e8f1fd;
   color: var(--primary-strong);
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 700;
+}
+
+.selected-month-badge--filter {
+  background: #eef4fb;
+  color: #4f6478;
 }
 
 .status-message {
   margin: 0;
-  padding: 10px 12px;
+  padding: 9px 11px;
   border-radius: 12px;
   background: rgba(34, 110, 214, 0.12);
   color: var(--primary-strong);
@@ -399,12 +362,12 @@ textarea {
 .card-list {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
-  gap: 12px;
+  gap: 10px;
 }
 
 .patient-card {
   position: relative;
-  padding: 14px;
+  padding: 12px;
 }
 
 .patient-card--complete {
@@ -418,31 +381,31 @@ textarea {
 }
 
 .patient-card__header {
-  padding-right: 56px;
-  margin-bottom: 10px;
+  padding-right: 52px;
+  margin-bottom: 8px;
 }
 
 .patient-card__title-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .patient-card__title-row h3 {
   margin: 0;
-  font-size: 1.06rem;
+  font-size: 1rem;
 }
 
 .badge {
   display: inline-flex;
   align-items: center;
-  min-height: 24px;
+  min-height: 22px;
   padding: 0 8px;
   border-radius: 999px;
   background: #dff0e2;
   color: #287645;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
 }
 
@@ -453,37 +416,32 @@ textarea {
 
 .delete-button--compact {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 10px;
+  right: 10px;
   width: auto;
-  min-width: 40px;
-  min-height: 30px;
+  min-width: 38px;
+  min-height: 28px;
   padding: 0 8px;
   border-radius: 10px;
   background: #eef3f8;
   color: #5c7085;
-  font-size: 0.74rem;
+  font-size: 0.72rem;
 }
 
 .progress-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-  margin: 10px 0 8px;
-}
-
-.progress-grid--compact {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin: 8px 0 6px;
 }
 
 .progress-toggle--compact {
   display: grid;
   justify-items: center;
   align-content: center;
-  gap: 4px;
-  padding: 6px;
-  min-height: 84px;
-  aspect-ratio: 1 / 1;
+  gap: 2px;
+  padding: 5px 4px;
+  min-height: 58px;
   background: #edf3fb;
   color: #2f4b67;
   border: 1px solid transparent;
@@ -491,12 +449,12 @@ textarea {
 }
 
 .progress-toggle--compact span {
-  font-size: 0.74rem;
-  line-height: 1.2;
+  font-size: 0.66rem;
+  line-height: 1.1;
 }
 
 .progress-toggle--compact strong {
-  font-size: 1rem;
+  font-size: 0.9rem;
 }
 
 .progress-toggle.is-active {
@@ -506,22 +464,22 @@ textarea {
 }
 
 .record-missing {
-  margin: 10px 0 8px;
-  padding: 10px 12px;
-  border-radius: 14px;
+  margin: 8px 0 6px;
+  padding: 8px 10px;
+  border-radius: 12px;
   background: #f5f8fd;
 }
 
 .record-missing--compact p,
 .patient-card__updated {
   margin: 0;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
 }
 
 .memo-field--compact textarea {
-  min-height: 40px;
-  padding-top: 9px;
-  padding-bottom: 9px;
+  min-height: 34px;
+  padding-top: 7px;
+  padding-bottom: 7px;
 }
 
 .empty-state {
@@ -529,10 +487,9 @@ textarea {
 }
 
 .primary-button:hover,
-.secondary-button:hover,
-.ghost-button:hover,
 .delete-button:hover,
 .progress-toggle:hover,
+.summary-card:hover,
 .month-menu__item:hover,
 .menu-button:hover {
   transform: translateY(-1px);
@@ -574,45 +531,39 @@ textarea {
 
   .card-list {
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 8px;
   }
 
   .patient-card,
   .panel,
   .empty-state {
-    padding: 12px;
+    padding: 11px;
   }
 
   .board-header__actions {
     justify-items: stretch;
   }
 
-  .board-header__bulk-button {
-    width: 100%;
-    min-width: 0;
-  }
-
-  .progress-grid,
-  .progress-grid--compact {
+  .progress-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 6px;
+    gap: 5px;
   }
 
   .progress-toggle--compact {
-    min-height: 76px;
-    padding: 5px;
+    min-height: 54px;
+    padding: 4px 3px;
   }
 
   .progress-toggle--compact span {
-    font-size: 0.68rem;
+    font-size: 0.62rem;
   }
 
   .progress-toggle--compact strong {
-    font-size: 0.96rem;
+    font-size: 0.86rem;
   }
 
   .layout-grid__side {
-    gap: 12px;
+    gap: 10px;
   }
 
   .month-menu {

@@ -1,49 +1,56 @@
 ﻿import { useMemo, useRef, useState } from "react";
 import { AddPatientForm } from "./components/AddPatientForm";
 import { PatientBoard } from "./components/PatientBoard";
-import { SummaryBar } from "./components/SummaryBar";
-import { Toolbar } from "./components/Toolbar";
+import { SummaryBar, type SummaryFilterKey } from "./components/SummaryBar";
 import { usePatientBoard } from "./hooks/usePatientBoard";
 import {
   buildSummaryStats,
   formatMonth,
   getAvailableMonths,
   getRecordByMonth,
-  sortPatients,
-  toCsv
+  isMonthlyRecordComplete,
+  shiftMonth,
+  sortPatients
 } from "./utils/patientUtils";
 
 const App = () => {
-  const {
-    currentMonth,
-    patients,
-    showIncompleteOnly,
-    setShowIncompleteOnly,
-    addPatient,
-    toggleProgress,
-    createMonthlyRecordsForAll,
-    updateMemo,
-    deletePatient,
-    importFromCsv,
-    restoreSamples
-  } = usePatientBoard();
+  const { currentMonth, patients, addPatient, toggleProgress, createMonthlyRecordsForAll, updateMemo, deletePatient } =
+    usePatientBoard();
   const [message, setMessage] = useState("");
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
   const [isMonthMenuOpen, setIsMonthMenuOpen] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<SummaryFilterKey | null>(null);
   const messageTimeoutRef = useRef<number | null>(null);
 
+  const nextMonth = useMemo(() => shiftMonth(currentMonth, 1), [currentMonth]);
   const months = useMemo(() => getAvailableMonths(patients, currentMonth), [currentMonth, patients]);
 
   const visiblePatients = useMemo(() => {
     const sorted = sortPatients(patients, selectedMonth);
 
-    return showIncompleteOnly
-      ? sorted.filter((patient) => {
-          const record = getRecordByMonth(patient, selectedMonth);
-          return !record || !(record.documentCreated && record.signed && record.submitted);
-        })
-      : sorted;
-  }, [patients, selectedMonth, showIncompleteOnly]);
+    return sorted.filter((patient) => {
+      const record = getRecordByMonth(patient, selectedMonth);
+
+      if (!activeFilter) {
+        return true;
+      }
+
+      switch (activeFilter) {
+        case "incompleteCount":
+          return !record || !isMonthlyRecordComplete(record);
+        case "completeCount":
+          return Boolean(record && isMonthlyRecordComplete(record));
+        case "waitingDocumentCount":
+          return !record || !record.documentCreated;
+        case "waitingSignCount":
+          return Boolean(record?.documentCreated && !record.signed);
+        case "waitingSubmissionCount":
+          return Boolean(record?.signed && !record.submitted);
+        default:
+          return true;
+      }
+    });
+  }, [activeFilter, patients, selectedMonth]);
 
   const summary = useMemo(
     () => buildSummaryStats(patients, selectedMonth),
@@ -63,56 +70,27 @@ const App = () => {
     }, 3000);
   };
 
-  const handleExportCsv = () => {
-    const csv = toCsv(patients);
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-
-    link.href = url;
-    link.download = `plan-progress-${new Date().toISOString().slice(0, 10)}.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
-    showMessage("CSVを書き出しました。");
-  };
-
-  const handleImportCsv = async (file: File | null) => {
-    if (!file) {
-      return;
-    }
-
-    try {
-      const text = await file.text();
-      importFromCsv(text);
-      setSelectedMonth(currentMonth);
-      showMessage("CSVを読み込みました。");
-    } catch (error) {
-      showMessage(error instanceof Error ? error.message : "CSVの読み込みに失敗しました。");
-    }
-  };
-
-  const handleRestoreSamples = () => {
-    restoreSamples();
-    setSelectedMonth(currentMonth);
-    showMessage("サンプルデータを復元しました。");
-  };
-
-  const handleCreateCurrentMonthForAll = () => {
+  const handleCreateNextMonthForAll = () => {
     const createdCount = patients.filter(
-      (patient) => !patient.monthlyRecords.some((record) => record.month === currentMonth)
+      (patient) => !patient.monthlyRecords.some((record) => record.month === nextMonth)
     ).length;
 
-    createMonthlyRecordsForAll(currentMonth);
+    createMonthlyRecordsForAll(nextMonth);
     showMessage(
       createdCount > 0
-        ? `今月分を ${createdCount} 件作成しました。`
-        : "すべての患者に今月分レコードがあります。"
+        ? `来月分を ${createdCount} 件作成しました。`
+        : "すべての患者に来月分レコードがあります。"
     );
   };
 
   const handleSelectMonth = (month: string) => {
     setSelectedMonth(month);
+    setActiveFilter(null);
     setIsMonthMenuOpen(false);
+  };
+
+  const handleToggleFilter = (key: SummaryFilterKey) => {
+    setActiveFilter((current) => (current === key ? null : key));
   };
 
   return (
@@ -152,6 +130,9 @@ const App = () => {
               <h2>月ページ</h2>
               <p>新しい月から表示</p>
             </div>
+            <button className="primary-button month-menu__bulk-button" type="button" onClick={handleCreateNextMonthForAll}>
+              来月分を一括作成
+            </button>
             <div className="month-menu__list">
               {months.map((month) => (
                 <button
@@ -169,18 +150,11 @@ const App = () => {
         </div>
       ) : null}
 
-      <SummaryBar summary={summary} />
+      <SummaryBar summary={summary} activeFilter={activeFilter} onToggleFilter={handleToggleFilter} />
 
       <div className="layout-grid">
         <div className="layout-grid__side">
           <AddPatientForm onAddPatient={addPatient} />
-          <Toolbar
-            showIncompleteOnly={showIncompleteOnly}
-            onToggleIncompleteOnly={setShowIncompleteOnly}
-            onExportCsv={handleExportCsv}
-            onImportCsv={handleImportCsv}
-            onRestoreSamples={handleRestoreSamples}
-          />
         </div>
 
         <main className="layout-grid__main">
@@ -191,16 +165,12 @@ const App = () => {
                 <span className="selected-month-badge">
                   {selectedMonth === currentMonth ? "現在選択中の月" : "選択中の月"}
                 </span>
+                {activeFilter ? <span className="selected-month-badge selected-month-badge--filter">フィルタ中</span> : null}
               </div>
               <p>表示中 {visiblePatients.length}件 / 全体 {patients.length}件</p>
             </div>
 
             <div className="board-header__actions">
-              {selectedMonth === currentMonth ? (
-                <button className="primary-button board-header__bulk-button" type="button" onClick={handleCreateCurrentMonthForAll}>
-                  今月分を一括作成
-                </button>
-              ) : null}
               {message ? (
                 <p className="status-message" role="status">
                   {message}

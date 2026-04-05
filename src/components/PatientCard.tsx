@@ -62,7 +62,7 @@ export const PatientCard = ({
           <h3>{patient.patientName}</h3>
           {complete ? <span className="badge">完了</span> : null}
           {pastIncompleteCount > 0 ? (
-            <span className="badge badge--warning">過去分未完了あり</span>
+            <span className="badge badge--warning">過去分未完了あり（{pastIncompleteCount}件）</span>
           ) : null}
         </div>
         <p className="patient-card__meta">

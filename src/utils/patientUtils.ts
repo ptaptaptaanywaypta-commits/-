@@ -33,6 +33,12 @@ const dateTimeFormatter = new Intl.DateTimeFormat("ja-JP", {
 export const getCurrentMonth = () =>
   `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}`;
 
+export const shiftMonth = (month: string, offset: number): string => {
+  const [year, monthNumber] = month.split("-").map(Number);
+  const date = new Date(year, monthNumber - 1 + offset, 1);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+};
+
 export const createMonthlyRecord = (month = getCurrentMonth()): MonthlyRecord => ({
   id: crypto.randomUUID(),
   month,
