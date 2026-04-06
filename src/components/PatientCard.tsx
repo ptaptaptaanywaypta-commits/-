@@ -2,8 +2,6 @@
 import {
   calculateDaysSinceStart,
   formatDate,
-  formatDateTime,
-  formatMonth,
   isMonthlyRecordComplete
 } from "../utils/patientUtils";
 
@@ -29,7 +27,6 @@ const progressButtons: Array<{
 export const PatientCard = ({
   patient,
   currentRecord,
-  selectedMonth,
   pastIncompleteCount,
   onToggleProgress,
   onUpdateMemo,
@@ -68,52 +65,42 @@ export const PatientCard = ({
 
         <div className="patient-card__meta-grid" aria-label="患者情報">
           <div className="meta-pill">
-            <span>対象月</span>
-            <strong>{formatMonth(selectedMonth)}</strong>
-          </div>
-          <div className="meta-pill">
             <span>開始日</span>
             <strong>{formatDate(patient.rehabStartDate)}</strong>
           </div>
           <div className="meta-pill">
-            <span>経過</span>
+            <span>経過日</span>
             <strong>{daysSinceStart}日</strong>
           </div>
         </div>
       </div>
 
       {currentRecord ? (
-        <>
-          <div
-            className="progress-grid progress-grid--compact"
-            role="group"
-            aria-label={`${patient.patientName} の工程`}
-          >
-            {progressButtons.map((button) => {
-              const active = currentRecord[button.key];
+        <div
+          className="progress-grid progress-grid--compact"
+          role="group"
+          aria-label={`${patient.patientName} の工程`}
+        >
+          {progressButtons.map((button) => {
+            const active = currentRecord[button.key];
 
-              return (
-                <button
-                  key={button.key}
-                  type="button"
-                  className={`progress-toggle progress-toggle--compact ${active ? "is-active" : ""}`}
-                  onClick={() => onToggleProgress(patient.id, currentRecord.month, button.key)}
-                  aria-pressed={active}
-                >
-                  <span>{button.label}</span>
-                  <strong>{active ? "済" : "未"}</strong>
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="patient-card__footer-meta">
-            <p className="patient-card__updated">最終更新 {formatDateTime(currentRecord.updatedAt)}</p>
-          </div>
-        </>
+            return (
+              <button
+                key={button.key}
+                type="button"
+                className={`progress-toggle progress-toggle--compact ${active ? "is-active" : ""}`}
+                onClick={() => onToggleProgress(patient.id, currentRecord.month, button.key)}
+                aria-pressed={active}
+              >
+                <span>{button.label}</span>
+                <strong>{active ? "済" : "未"}</strong>
+              </button>
+            );
+          })}
+        </div>
       ) : (
         <div className="record-missing record-missing--compact">
-          <p>{formatMonth(selectedMonth)} のレコードは未作成です。</p>
+          <p>未作成</p>
         </div>
       )}
 
@@ -122,7 +109,7 @@ export const PatientCard = ({
         <textarea
           value={patient.memo}
           rows={2}
-          placeholder="補足事項や申し送りを入力"
+          placeholder="補足事項"
           onChange={(event) => onUpdateMemo(patient.id, event.target.value)}
         />
       </label>

@@ -153,19 +153,12 @@ const App = () => {
           </button>
 
           <div className="hero__copy">
-            <p className="hero__eyebrow">Rehab Planning Workflow</p>
             <h1>計画書進捗ボード</h1>
-            <p className="hero__description">現場で迷わず使える、月次の書類進捗ボード</p>
           </div>
         </div>
 
         <div className="hero__status-card">
-          <p className="hero__status-label">Current Page</p>
           <strong>{formatMonth(selectedMonth)}</strong>
-          <div className="hero__status-meta">
-            <span>{selectedMonth === currentMonth ? "今月を表示中" : "月ページを表示中"}</span>
-            <span>{visiblePatients.length}件表示</span>
-          </div>
         </div>
       </header>
 
@@ -177,9 +170,7 @@ const App = () => {
             aria-label="月一覧"
           >
             <div className="month-menu__header">
-              <p className="month-menu__eyebrow">Monthly Pages</p>
-              <h2>月ページを選択</h2>
-              <p>よく使う月へすぐ切り替えられます。</p>
+              <h2>月ページ</h2>
             </div>
 
             <button className="primary-button month-menu__bulk-button" type="button" onClick={handleCreateNextMonthForAll}>
@@ -196,7 +187,6 @@ const App = () => {
                 >
                   <div className="month-menu__item-copy">
                     <span>{formatMonth(month)}</span>
-                    <small>{month === currentMonth ? "現在運用中" : "履歴ページ"}</small>
                   </div>
                   {month === currentMonth ? <strong>今月</strong> : null}
                 </button>
@@ -216,7 +206,6 @@ const App = () => {
         <main className="layout-grid__main">
           <div className="board-header board-header--month-page">
             <div className="board-header__copy">
-              <p className="board-header__eyebrow">Selected Workspace</p>
               <div className="board-header__title-row">
                 <h2>{formatMonth(selectedMonth)}</h2>
                 <span className="selected-month-badge">
@@ -226,7 +215,6 @@ const App = () => {
                   <span className="selected-month-badge selected-month-badge--filter">フィルタ中</span>
                 ) : null}
               </div>
-              <p className="board-header__description">表示中 {visiblePatients.length}件 / 全体 {patients.length}件</p>
             </div>
 
             <div className="board-header__actions">
@@ -234,9 +222,7 @@ const App = () => {
                 <p className="status-message" role="status">
                   {message}
                 </p>
-              ) : (
-                <p className="board-header__hint">上部カードをタップすると条件で絞り込めます。</p>
-              )}
+              ) : null}
             </div>
           </div>
 

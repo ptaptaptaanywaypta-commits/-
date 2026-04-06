@@ -26,10 +26,8 @@ export const AddPatientForm = ({ onAddPatient }: AddPatientFormProps) => {
   return (
     <section className="panel panel--form">
       <div className="panel-heading panel-heading--stacked">
-        <p className="panel__eyebrow">Quick Intake</p>
         <div>
           <h2>患者を追加</h2>
-          <p>現場で必要な最小項目だけを入力し、今月分レコードをすぐ作成します。</p>
         </div>
       </div>
 
@@ -76,7 +74,7 @@ export const AddPatientForm = ({ onAddPatient }: AddPatientFormProps) => {
               }))
             }
             rows={2}
-            placeholder="例: 主治医確認待ち、家族説明予定 など"
+            placeholder="補足事項"
           />
         </label>
 
