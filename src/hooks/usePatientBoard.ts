@@ -40,13 +40,15 @@ export const usePatientBoard = () => {
   }, [patients]);
 
   const addPatient = (input: ReturnType<typeof createEmptyPatient>) => {
+    const id = crypto.randomUUID();
     const nextPatient: Patient = {
-      id: crypto.randomUUID(),
+      id,
       ...input,
       monthlyRecords: [createMonthlyRecord(currentMonth)]
     };
 
     setPatients((current) => sortPatients([nextPatient, ...current], currentMonth));
+    return id;
   };
 
   const toggleProgress = (patientId: string, month: string, key: PatientProgressKey) => {

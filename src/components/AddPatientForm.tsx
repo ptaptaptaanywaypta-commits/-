@@ -2,7 +2,7 @@
 import { createEmptyPatient } from "../utils/patientUtils";
 
 type AddPatientFormProps = {
-  onAddPatient: (input: ReturnType<typeof createEmptyPatient>) => void;
+  onAddPatient: (input: ReturnType<typeof createEmptyPatient>) => string;
 };
 
 export const AddPatientForm = ({ onAddPatient }: AddPatientFormProps) => {

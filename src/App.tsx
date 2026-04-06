@@ -28,7 +28,9 @@ const App = () => {
   });
   const [isMonthMenuOpen, setIsMonthMenuOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState<SummaryFilterKey | null>(null);
+  const [isAddFeedbackVisible, setIsAddFeedbackVisible] = useState(false);
   const messageTimeoutRef = useRef<number | null>(null);
+  const addFeedbackTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     window.localStorage.setItem(SELECTED_MONTH_STORAGE_KEY, selectedMonth);
@@ -105,8 +107,27 @@ const App = () => {
     setActiveFilter((current) => (current === key ? null : key));
   };
 
+  const handleAddPatient = (input: Parameters<typeof addPatient>[0]) => {
+    const id = addPatient(input);
+
+    if (addFeedbackTimeoutRef.current) {
+      window.clearTimeout(addFeedbackTimeoutRef.current);
+    }
+
+    setIsAddFeedbackVisible(false);
+    window.requestAnimationFrame(() => {
+      setIsAddFeedbackVisible(true);
+      addFeedbackTimeoutRef.current = window.setTimeout(() => {
+        setIsAddFeedbackVisible(false);
+        addFeedbackTimeoutRef.current = null;
+      }, 220);
+    });
+
+    return id;
+  };
+
   return (
-    <div className="app-shell">
+    <div className={`app-shell ${isAddFeedbackVisible ? "app-shell--added" : ""}`}>
       <header className="hero">
         <div className="hero__main">
           <button
@@ -166,7 +187,7 @@ const App = () => {
 
       <div className="layout-grid">
         <div className="layout-grid__side">
-          <AddPatientForm onAddPatient={addPatient} />
+          <AddPatientForm onAddPatient={handleAddPatient} />
         </div>
 
         <main className="layout-grid__main">
