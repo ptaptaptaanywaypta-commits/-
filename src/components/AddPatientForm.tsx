@@ -24,11 +24,12 @@ export const AddPatientForm = ({ onAddPatient }: AddPatientFormProps) => {
   };
 
   return (
-    <section className="panel">
-      <div className="panel-heading">
+    <section className="panel panel--form">
+      <div className="panel-heading panel-heading--stacked">
+        <p className="panel__eyebrow">Quick Intake</p>
         <div>
-          <h2>患者追加</h2>
-          <p>患者を登録すると、今月分レコードを1件自動で作成します。</p>
+          <h2>患者を追加</h2>
+          <p>現場で必要な最小項目だけを入力し、今月分レコードをすぐ作成します。</p>
         </div>
       </div>
 
@@ -75,11 +76,11 @@ export const AddPatientForm = ({ onAddPatient }: AddPatientFormProps) => {
               }))
             }
             rows={2}
-            placeholder="補足メモ"
+            placeholder="例: 主治医確認待ち、家族説明予定 など"
           />
         </label>
 
-        <button className="primary-button" type="submit">
+        <button className="primary-button primary-button--form" type="submit">
           患者を追加
         </button>
       </form>

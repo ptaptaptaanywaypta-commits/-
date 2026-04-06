@@ -60,14 +60,26 @@ export const PatientCard = ({
       <div className="patient-card__header">
         <div className="patient-card__title-row">
           <h3>{patient.patientName}</h3>
-          {complete ? <span className="badge">完了</span> : null}
+          {complete ? <span className="badge">今月完了</span> : null}
           {pastIncompleteCount > 0 ? (
             <span className="badge badge--warning">過去分未完了あり（{pastIncompleteCount}件）</span>
           ) : null}
         </div>
-        <p className="patient-card__meta">
-          {formatMonth(selectedMonth)} ・ 開始 {formatDate(patient.rehabStartDate)} ・ {daysSinceStart}日
-        </p>
+
+        <div className="patient-card__meta-grid" aria-label="患者情報">
+          <div className="meta-pill">
+            <span>対象月</span>
+            <strong>{formatMonth(selectedMonth)}</strong>
+          </div>
+          <div className="meta-pill">
+            <span>開始日</span>
+            <strong>{formatDate(patient.rehabStartDate)}</strong>
+          </div>
+          <div className="meta-pill">
+            <span>経過</span>
+            <strong>{daysSinceStart}日</strong>
+          </div>
+        </div>
       </div>
 
       {currentRecord ? (
@@ -95,7 +107,9 @@ export const PatientCard = ({
             })}
           </div>
 
-          <p className="patient-card__updated">更新 {formatDateTime(currentRecord.updatedAt)}</p>
+          <div className="patient-card__footer-meta">
+            <p className="patient-card__updated">最終更新 {formatDateTime(currentRecord.updatedAt)}</p>
+          </div>
         </>
       ) : (
         <div className="record-missing record-missing--compact">
@@ -107,8 +121,8 @@ export const PatientCard = ({
         <span>メモ</span>
         <textarea
           value={patient.memo}
-          rows={1}
-          placeholder="必要時のみメモ"
+          rows={2}
+          placeholder="補足事項や申し送りを入力"
           onChange={(event) => onUpdateMemo(patient.id, event.target.value)}
         />
       </label>

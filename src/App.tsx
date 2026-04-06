@@ -16,8 +16,15 @@ import {
 const SELECTED_MONTH_STORAGE_KEY = "selected-month-page";
 
 const App = () => {
-  const { currentMonth, patients, addPatient, toggleProgress, createMonthlyRecordsForAll, updateMemo, deletePatient } =
-    usePatientBoard();
+  const {
+    currentMonth,
+    patients,
+    addPatient,
+    toggleProgress,
+    createMonthlyRecordsForAll,
+    updateMemo,
+    deletePatient
+  } = usePatientBoard();
   const [message, setMessage] = useState("");
   const [selectedMonth, setSelectedMonth] = useState(() => {
     if (typeof window === "undefined") {
@@ -81,7 +88,7 @@ const App = () => {
     messageTimeoutRef.current = window.setTimeout(() => {
       setMessage("");
       messageTimeoutRef.current = null;
-    }, 3000);
+    }, 2800);
   };
 
   const handleCreateNextMonthForAll = () => {
@@ -123,11 +130,14 @@ const App = () => {
       }, 220);
     });
 
+    showMessage("患者を追加しました。");
     return id;
   };
 
   return (
     <div className={`app-shell ${isAddFeedbackVisible ? "app-shell--added" : ""}`}>
+      <div className="app-shell__backdrop" aria-hidden="true" />
+
       <header className="hero">
         <div className="hero__main">
           <button
@@ -141,14 +151,21 @@ const App = () => {
             <span />
             <span />
           </button>
-          <div>
+
+          <div className="hero__copy">
+            <p className="hero__eyebrow">Rehab Planning Workflow</p>
             <h1>計画書進捗ボード</h1>
-            <p className="hero__description">進捗を分かりやすく管理</p>
+            <p className="hero__description">現場で迷わず使える、月次の書類進捗ボード</p>
           </div>
         </div>
-        <div className="hero__status">
+
+        <div className="hero__status-card">
+          <p className="hero__status-label">Current Page</p>
           <strong>{formatMonth(selectedMonth)}</strong>
-          <span>{selectedMonth === currentMonth ? "今月を表示中" : "月ページを表示中"}</span>
+          <div className="hero__status-meta">
+            <span>{selectedMonth === currentMonth ? "今月を表示中" : "月ページを表示中"}</span>
+            <span>{visiblePatients.length}件表示</span>
+          </div>
         </div>
       </header>
 
@@ -160,12 +177,15 @@ const App = () => {
             aria-label="月一覧"
           >
             <div className="month-menu__header">
-              <h2>月ページ</h2>
-              <p>新しい月から表示</p>
+              <p className="month-menu__eyebrow">Monthly Pages</p>
+              <h2>月ページを選択</h2>
+              <p>よく使う月へすぐ切り替えられます。</p>
             </div>
+
             <button className="primary-button month-menu__bulk-button" type="button" onClick={handleCreateNextMonthForAll}>
               来月分を一括作成
             </button>
+
             <div className="month-menu__list">
               {months.map((month) => (
                 <button
@@ -174,7 +194,10 @@ const App = () => {
                   className={`month-menu__item ${month === selectedMonth ? "is-active" : ""}`}
                   onClick={() => handleSelectMonth(month)}
                 >
-                  <span>{formatMonth(month)}</span>
+                  <div className="month-menu__item-copy">
+                    <span>{formatMonth(month)}</span>
+                    <small>{month === currentMonth ? "現在運用中" : "履歴ページ"}</small>
+                  </div>
                   {month === currentMonth ? <strong>今月</strong> : null}
                 </button>
               ))}
@@ -186,21 +209,24 @@ const App = () => {
       <SummaryBar summary={summary} activeFilter={activeFilter} onToggleFilter={handleToggleFilter} />
 
       <div className="layout-grid">
-        <div className="layout-grid__side">
+        <aside className="layout-grid__side">
           <AddPatientForm onAddPatient={handleAddPatient} />
-        </div>
+        </aside>
 
         <main className="layout-grid__main">
           <div className="board-header board-header--month-page">
-            <div>
+            <div className="board-header__copy">
+              <p className="board-header__eyebrow">Selected Workspace</p>
               <div className="board-header__title-row">
                 <h2>{formatMonth(selectedMonth)}</h2>
                 <span className="selected-month-badge">
                   {selectedMonth === currentMonth ? "現在選択中の月" : "選択中の月"}
                 </span>
-                {activeFilter ? <span className="selected-month-badge selected-month-badge--filter">フィルタ中</span> : null}
+                {activeFilter ? (
+                  <span className="selected-month-badge selected-month-badge--filter">フィルタ中</span>
+                ) : null}
               </div>
-              <p>表示中 {visiblePatients.length}件 / 全体 {patients.length}件</p>
+              <p className="board-header__description">表示中 {visiblePatients.length}件 / 全体 {patients.length}件</p>
             </div>
 
             <div className="board-header__actions">
@@ -208,7 +234,9 @@ const App = () => {
                 <p className="status-message" role="status">
                   {message}
                 </p>
-              ) : null}
+              ) : (
+                <p className="board-header__hint">上部カードをタップすると条件で絞り込めます。</p>
+              )}
             </div>
           </div>
 

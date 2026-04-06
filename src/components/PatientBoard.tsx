@@ -22,8 +22,9 @@ export const PatientBoard = ({
   if (patients.length === 0) {
     return (
       <section className="empty-state">
+        <p className="empty-state__eyebrow">No Matching Patients</p>
         <h2>表示できる患者がいません</h2>
-        <p>月を切り替えるか、絞り込みを解除してください。</p>
+        <p>月を切り替えるか、フィルタを解除してください。</p>
       </section>
     );
   }
