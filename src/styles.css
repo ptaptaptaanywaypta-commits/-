@@ -9,21 +9,26 @@
   -moz-osx-font-smoothing: grayscale;
   --surface: rgba(255, 255, 255, 0.94);
   --surface-strong: #ffffff;
-  --surface-muted: #f5f8fb;
-  --surface-accent: #eef4fb;
-  --border: #d5e0ea;
+  --surface-muted: #f4f7fb;
+  --surface-accent: #eaf1ff;
+  --border: #d2ddea;
   --text: #112133;
-  --text-subtle: #5d7287;
-  --text-soft: #7f92a5;
+  --text-subtle: #4f6378;
+  --text-soft: #708399;
   --navy-strong: #10263c;
-  --blue: #315f96;
-  --primary: #1e4f84;
-  --primary-strong: #163d67;
+  --blue: #2563eb;
+  --blue-hover: #1d4ed8;
+  --primary: #2563eb;
+  --primary-strong: #1d4ed8;
   --danger: #c62828;
-  --danger-soft: #fff2f1;
-  --danger-border: #e5b8b3;
-  --success-soft: #edf6ee;
-  --success-border: #c5dbc9;
+  --danger-soft: #fff1f1;
+  --danger-border: #e3b7b7;
+  --success: #15803d;
+  --success-strong: #166534;
+  --success-soft: #ebf7ef;
+  --success-border: #b9dec4;
+  --inactive: #edf1f5;
+  --inactive-text: #526273;
   --shadow-sm: 0 10px 28px rgba(17, 33, 51, 0.06);
   --shadow-md: 0 18px 48px rgba(17, 33, 51, 0.1);
   --radius-xl: 28px;
@@ -77,7 +82,7 @@ button {
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(circle at 10% 10%, rgba(57, 104, 158, 0.08), transparent 26%),
+    radial-gradient(circle at 10% 10%, rgba(37, 99, 235, 0.08), transparent 26%),
     radial-gradient(circle at 100% 0%, rgba(17, 33, 51, 0.08), transparent 22%);
   pointer-events: none;
 }
@@ -120,7 +125,7 @@ button {
 .hero__status-card {
   padding: 12px 14px;
   border-radius: 18px;
-  background: linear-gradient(180deg, rgba(227, 236, 246, 0.84), rgba(255, 255, 255, 0.88));
+  background: linear-gradient(180deg, rgba(227, 236, 255, 0.88), rgba(255, 255, 255, 0.9));
   border: 1px solid rgba(197, 211, 226, 0.95);
 }
 
@@ -145,7 +150,7 @@ button {
   display: block;
   height: 2px;
   border-radius: 999px;
-  background: #15304b;
+  background: var(--navy-strong);
 }
 
 .month-menu-backdrop {
@@ -207,8 +212,8 @@ button {
 }
 
 .month-menu__item.is-active {
-  background: linear-gradient(180deg, rgba(224, 234, 246, 0.88), rgba(246, 250, 254, 0.98));
-  border-color: rgba(49, 95, 150, 0.42);
+  background: linear-gradient(180deg, rgba(227, 236, 255, 0.96), rgba(246, 249, 255, 0.98));
+  border-color: rgba(37, 99, 235, 0.34);
   color: var(--primary-strong);
 }
 
@@ -254,16 +259,16 @@ button {
 }
 
 .summary-card.is-active {
-  border-color: rgba(49, 95, 150, 0.48);
-  box-shadow: 0 0 0 3px rgba(49, 95, 150, 0.08), var(--shadow-sm);
+  border-color: rgba(37, 99, 235, 0.42);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1), var(--shadow-sm);
 }
 
 .summary-card--primary {
-  background: linear-gradient(180deg, rgba(230, 238, 248, 0.92), rgba(255, 255, 255, 0.98));
+  background: linear-gradient(180deg, rgba(232, 240, 255, 0.96), rgba(255, 255, 255, 0.98));
 }
 
 .summary-card--success {
-  background: linear-gradient(180deg, rgba(236, 246, 238, 0.94), rgba(255, 255, 255, 0.98));
+  background: linear-gradient(180deg, rgba(232, 247, 237, 0.96), rgba(255, 255, 255, 0.98));
 }
 
 .layout-grid {
@@ -302,7 +307,7 @@ button {
 .memo-field span {
   font-size: 0.8rem;
   font-weight: 700;
-  color: #15304b;
+  color: var(--navy-strong);
 }
 
 input[type="text"],
@@ -319,15 +324,15 @@ textarea {
 
 input::placeholder,
 textarea::placeholder {
-  color: #92a2b2;
+  color: #90a1b4;
 }
 
 input[type="text"]:focus,
 input[type="date"]:focus,
 textarea:focus {
   outline: none;
-  border-color: rgba(49, 95, 150, 0.64);
-  box-shadow: 0 0 0 4px rgba(49, 95, 150, 0.1);
+  border-color: rgba(37, 99, 235, 0.62);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
   background: var(--surface-strong);
 }
 
@@ -377,7 +382,7 @@ textarea {
   background: linear-gradient(135deg, var(--primary), var(--primary-strong));
   color: #ffffff;
   font-weight: 700;
-  box-shadow: 0 8px 18px rgba(30, 79, 132, 0.2);
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.22);
 }
 
 .board-header {
@@ -427,7 +432,7 @@ textarea {
   margin: 0;
   padding: 9px 11px;
   border-radius: 14px;
-  background: rgba(225, 236, 247, 0.88);
+  background: rgba(232, 240, 255, 0.92);
   color: var(--primary-strong);
   font-weight: 700;
   border: 1px solid rgba(196, 210, 223, 0.92);
@@ -447,7 +452,7 @@ textarea {
 }
 
 .patient-card--complete {
-  background: linear-gradient(180deg, rgba(241, 248, 242, 0.96), rgba(255, 255, 255, 0.98));
+  background: linear-gradient(180deg, rgba(239, 249, 242, 0.98), rgba(255, 255, 255, 0.98));
   border-color: var(--success-border);
 }
 
@@ -498,7 +503,7 @@ textarea {
 
 .meta-pill strong {
   font-size: 0.84rem;
-  color: #15304b;
+  color: var(--navy-strong);
 }
 
 .badge {
@@ -509,9 +514,9 @@ textarea {
   border-radius: 999px;
   font-size: 0.72rem;
   font-weight: 700;
-  background: var(--success-soft);
-  color: #2c6a41;
-  border: 1px solid rgba(197, 219, 201, 0.92);
+  background: linear-gradient(180deg, var(--success), var(--success-strong));
+  color: #ffffff;
+  border: 1px solid rgba(21, 128, 61, 0.3);
 }
 
 .badge--warning {
@@ -549,8 +554,8 @@ textarea {
   padding: 5px 4px;
   border: 1px solid rgba(209, 220, 231, 0.92);
   border-radius: 16px;
-  background: #edf1f5;
-  color: #56687a;
+  background: var(--inactive);
+  color: var(--inactive-text);
   text-align: center;
   box-shadow: 0 1px 2px rgba(17, 33, 51, 0.03);
 }
@@ -609,13 +614,26 @@ textarea {
   text-align: center;
 }
 
-.primary-button:hover,
+.primary-button:hover {
+  background: linear-gradient(135deg, var(--blue-hover), #1e40af);
+  box-shadow: 0 8px 18px rgba(29, 78, 216, 0.24);
+  transform: translateY(-1px);
+}
+
 .delete-button:hover,
-.progress-toggle:hover,
 .summary-card:hover,
 .month-menu__item:hover,
 .menu-button:hover {
   transform: translateY(-1px);
+}
+
+.progress-toggle:hover {
+  transform: translateY(-1px);
+}
+
+.progress-toggle:not(.is-active):hover {
+  border-color: rgba(37, 99, 235, 0.22);
+  background: #e9eef5;
 }
 
 @keyframes app-added-pulse {
