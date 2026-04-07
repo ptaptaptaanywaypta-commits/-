@@ -23,6 +23,7 @@ const App = () => {
     toggleProgress,
     createMonthlyRecordsForAll,
     updateMemo,
+    updatePatientDetails,
     deletePatient
   } = usePatientBoard();
   const [message, setMessage] = useState("");
@@ -232,6 +233,7 @@ const App = () => {
             currentMonth={currentMonth}
             onToggleProgress={toggleProgress}
             onUpdateMemo={updateMemo}
+            onUpdatePatientDetails={updatePatientDetails}
             onDeletePatient={deletePatient}
           />
         </main>

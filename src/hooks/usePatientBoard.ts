@@ -124,6 +124,25 @@ export const usePatientBoard = () => {
     );
   };
 
+  const updatePatientDetails = (
+    id: string,
+    updates: Pick<Patient, "patientName" | "rehabStartDate">
+  ) => {
+    setPatients((current) =>
+      sortPatients(
+        current.map((patient) =>
+          patient.id === id
+            ? {
+                ...patient,
+                ...updates
+              }
+            : patient
+        ),
+        currentMonth
+      )
+    );
+  };
+
   const deletePatient = (id: string) => {
     setPatients((current) => current.filter((patient) => patient.id !== id));
   };
@@ -147,6 +166,7 @@ export const usePatientBoard = () => {
     createMonthlyRecordForPatient,
     createMonthlyRecordsForAll,
     updateMemo,
+    updatePatientDetails,
     deletePatient,
     importFromCsv,
     restoreSamples

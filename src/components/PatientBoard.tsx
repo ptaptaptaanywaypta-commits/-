@@ -8,6 +8,10 @@ type PatientBoardProps = {
   currentMonth: string;
   onToggleProgress: (patientId: string, month: string, key: PatientProgressKey) => void;
   onUpdateMemo: (id: string, memo: string) => void;
+  onUpdatePatientDetails: (
+    id: string,
+    updates: Pick<Patient, "patientName" | "rehabStartDate">
+  ) => void;
   onDeletePatient: (id: string) => void;
 };
 
@@ -17,6 +21,7 @@ export const PatientBoard = ({
   currentMonth,
   onToggleProgress,
   onUpdateMemo,
+  onUpdatePatientDetails,
   onDeletePatient
 }: PatientBoardProps) => {
   if (patients.length === 0) {
@@ -40,6 +45,7 @@ export const PatientBoard = ({
           pastIncompleteCount={getPastIncompleteCount(patient, currentMonth)}
           onToggleProgress={onToggleProgress}
           onUpdateMemo={onUpdateMemo}
+          onUpdatePatientDetails={onUpdatePatientDetails}
           onDeletePatient={onDeletePatient}
         />
       ))}

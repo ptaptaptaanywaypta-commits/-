@@ -481,6 +481,81 @@ textarea {
   color: var(--navy-strong);
 }
 
+.patient-card__editable-title,
+.patient-card__editable-meta {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.patient-card__editable-title {
+  width: auto;
+  max-width: 100%;
+}
+
+.patient-card__editable-title:hover,
+.patient-card__editable-title:focus-visible,
+.patient-card__editable-meta:hover,
+.patient-card__editable-meta:focus-visible,
+.meta-pill--editable:has(input[type="date"]) {
+  background: rgba(226, 236, 246, 0.72);
+  box-shadow: 0 0 0 1px rgba(170, 191, 210, 0.24);
+}
+
+.patient-card__editable-title:focus-visible,
+.patient-card__editable-meta:focus-visible {
+  outline: none;
+}
+
+.patient-card__inline-edit {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  flex: 1 1 220px;
+}
+
+.patient-card__inline-edit--meta {
+  gap: 3px;
+}
+
+.patient-card__inline-input {
+  min-width: 0;
+  padding: 8px 10px;
+  border-radius: 12px;
+  font: inherit;
+}
+
+.patient-card__inline-input[type="text"] {
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--navy-strong);
+}
+
+.patient-card__inline-input--date {
+  padding-right: 8px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--navy-strong);
+}
+
+.patient-card__inline-input.is-invalid {
+  border-color: rgba(215, 91, 74, 0.72);
+  box-shadow: 0 0 0 3px rgba(215, 91, 74, 0.12);
+}
+
+.patient-card__inline-error {
+  margin: 0;
+  font-size: 0.68rem;
+  color: #b45146;
+}
+
 .patient-card__meta-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -504,6 +579,10 @@ textarea {
 .meta-pill strong {
   font-size: 0.84rem;
   color: var(--navy-strong);
+}
+
+.patient-card__editable-meta strong {
+  display: block;
 }
 
 .badge {
