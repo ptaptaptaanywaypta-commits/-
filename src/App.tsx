@@ -14,6 +14,8 @@ import {
 } from "./utils/patientUtils";
 
 const SELECTED_MONTH_STORAGE_KEY = "selected-month-page";
+const SWIPE_OPEN_THRESHOLD = 56;
+const SWIPE_CLOSE_THRESHOLD = 36;
 
 type NextMonthDecision = "continue" | "discharged";
 
@@ -24,6 +26,11 @@ type NextMonthReviewState = {
     patientName: string;
     decision: NextMonthDecision;
   }>;
+};
+
+type SwipePoint = {
+  x: number;
+  y: number;
 };
 
 const App = () => {
@@ -50,8 +57,10 @@ const App = () => {
   const [activeFilter, setActiveFilter] = useState<SummaryFilterKey | null>(null);
   const [isAddFeedbackVisible, setIsAddFeedbackVisible] = useState(false);
   const [nextMonthReview, setNextMonthReview] = useState<NextMonthReviewState | null>(null);
+  const [deleteRevealMonth, setDeleteRevealMonth] = useState<string | null>(null);
   const messageTimeoutRef = useRef<number | null>(null);
   const addFeedbackTimeoutRef = useRef<number | null>(null);
+  const swipeStartRef = useRef<SwipePoint | null>(null);
 
   useEffect(() => {
     window.localStorage.setItem(SELECTED_MONTH_STORAGE_KEY, selectedMonth);
@@ -166,8 +175,14 @@ const App = () => {
   };
 
   const handleSelectMonth = (month: string) => {
+    if (deleteRevealMonth === month) {
+      setDeleteRevealMonth(null);
+      return;
+    }
+
     setSelectedMonth(month);
     setActiveFilter(null);
+    setDeleteRevealMonth(null);
     setIsMonthMenuOpen(false);
   };
 
@@ -181,8 +196,41 @@ const App = () => {
     }
 
     deleteMonthlyRecordsByMonth(month);
+    setDeleteRevealMonth(null);
     setNextMonthReview((current) => (current?.month === month ? null : current));
     showMessage(`${formatMonth(month)} を削除しました。`);
+  };
+
+  const handleMonthTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    const touch = event.touches[0];
+    swipeStartRef.current = {
+      x: touch.clientX,
+      y: touch.clientY
+    };
+  };
+
+  const handleMonthTouchEnd = (month: string, event: React.TouchEvent<HTMLDivElement>) => {
+    if (!swipeStartRef.current) {
+      return;
+    }
+
+    const touch = event.changedTouches[0];
+    const deltaX = touch.clientX - swipeStartRef.current.x;
+    const deltaY = touch.clientY - swipeStartRef.current.y;
+    swipeStartRef.current = null;
+
+    if (Math.abs(deltaY) > Math.abs(deltaX) || Math.abs(deltaX) < SWIPE_CLOSE_THRESHOLD) {
+      return;
+    }
+
+    if (deltaX <= -SWIPE_OPEN_THRESHOLD) {
+      setDeleteRevealMonth(month);
+      return;
+    }
+
+    if (deltaX >= SWIPE_CLOSE_THRESHOLD) {
+      setDeleteRevealMonth((current) => (current === month ? null : current));
+    }
   };
 
   const handleToggleFilter = (key: SummaryFilterKey) => {
@@ -218,7 +266,10 @@ const App = () => {
           <button
             className="menu-button"
             type="button"
-            onClick={() => setIsMonthMenuOpen((current) => !current)}
+            onClick={() => {
+              setIsMonthMenuOpen((current) => !current);
+              setDeleteRevealMonth(null);
+            }}
             aria-label="月メニューを開く"
             aria-expanded={isMonthMenuOpen}
           >
@@ -238,7 +289,13 @@ const App = () => {
       </header>
 
       {isMonthMenuOpen ? (
-        <div className="month-menu-backdrop" onClick={() => setIsMonthMenuOpen(false)}>
+        <div
+          className="month-menu-backdrop"
+          onClick={() => {
+            setDeleteRevealMonth(null);
+            setIsMonthMenuOpen(false);
+          }}
+        >
           <aside
             className="month-menu"
             onClick={(event) => event.stopPropagation()}
@@ -258,7 +315,23 @@ const App = () => {
 
             <div className="month-menu__list">
               {months.map((month) => (
-                <div key={month} className="month-menu__item-row">
+                <div
+                  key={month}
+                  className={`month-menu__item-row ${deleteRevealMonth === month ? "is-delete-revealed" : ""}`}
+                  onTouchStart={handleMonthTouchStart}
+                  onTouchEnd={(event) => handleMonthTouchEnd(month, event)}
+                >
+                  <div className="month-menu__delete-slot">
+                    <button
+                      type="button"
+                      className="month-menu__delete-button"
+                      onClick={() => handleDeleteMonth(month)}
+                      aria-label={`${formatMonth(month)} を削除`}
+                    >
+                      削除
+                    </button>
+                  </div>
+
                   <button
                     type="button"
                     className={`month-menu__item ${month === selectedMonth ? "is-active" : ""}`}
@@ -268,15 +341,6 @@ const App = () => {
                       <span>{formatMonth(month)}</span>
                     </div>
                     {month === currentMonth ? <strong>今月</strong> : null}
-                  </button>
-
-                  <button
-                    type="button"
-                    className="month-menu__delete-button"
-                    onClick={() => handleDeleteMonth(month)}
-                    aria-label={`${formatMonth(month)} を削除`}
-                  >
-                    削除
                   </button>
                 </div>
               ))}
