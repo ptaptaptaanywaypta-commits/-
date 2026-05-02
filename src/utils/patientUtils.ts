@@ -75,18 +75,20 @@ export const sortMonthlyRecords = (records: MonthlyRecord[]): MonthlyRecord[] =>
     return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
   });
 
-export const sortPatients = (
-  patients: Patient[],
-  currentMonth = getCurrentMonth()
-): Patient[] =>
-  [...patients].sort((a, b) => {
-    const aCurrent = getRecordByMonth(a, currentMonth);
-    const bCurrent = getRecordByMonth(b, currentMonth);
-    const aComplete = aCurrent ? isMonthlyRecordComplete(aCurrent) : false;
-    const bComplete = bCurrent ? isMonthlyRecordComplete(bCurrent) : false;
+export const normalizePatients = (patients: Patient[]): Patient[] =>
+  patients.map((patient, index) => ({
+    ...patient,
+    sortOrder: patient.sortOrder ?? index,
+    monthlyRecords: sortMonthlyRecords(patient.monthlyRecords)
+  }));
 
-    if (aComplete !== bComplete) {
-      return Number(aComplete) - Number(bComplete);
+export const sortPatients = (patients: Patient[]): Patient[] =>
+  [...patients].sort((a, b) => {
+    const orderCompare =
+      (a.sortOrder ?? Number.MAX_SAFE_INTEGER) - (b.sortOrder ?? Number.MAX_SAFE_INTEGER);
+
+    if (orderCompare !== 0) {
+      return orderCompare;
     }
 
     const dateCompare =
@@ -96,16 +98,20 @@ export const sortPatients = (
       return dateCompare;
     }
 
-    const aUpdated = aCurrent?.updatedAt ?? "";
-    const bUpdated = bCurrent?.updatedAt ?? "";
-    return new Date(bUpdated).getTime() - new Date(aUpdated).getTime();
+    const nameCompare = a.patientName.localeCompare(b.patientName, "ja");
+
+    if (nameCompare !== 0) {
+      return nameCompare;
+    }
+
+    return a.id.localeCompare(b.id);
   });
 
 export const getAvailableMonths = (
   patients: Patient[],
-  fallbackMonth = getCurrentMonth()
+  fallbackMonth?: string
 ): string[] => {
-  const monthSet = new Set<string>([fallbackMonth]);
+  const monthSet = new Set<string>(fallbackMonth ? [fallbackMonth] : []);
 
   patients.forEach((patient) => {
     patient.monthlyRecords.forEach((record) => {
@@ -193,6 +199,8 @@ const isPatient = (value: unknown): value is Patient =>
   typeof value === "object" &&
   value !== null &&
   typeof (value as Patient).id === "string" &&
+  (typeof (value as Patient).sortOrder === "number" ||
+    typeof (value as Patient).sortOrder === "undefined") &&
   typeof (value as Patient).patientName === "string" &&
   typeof (value as Patient).rehabStartDate === "string" &&
   typeof (value as Patient).memo === "string" &&
@@ -237,7 +245,7 @@ export const parseImportedPatients = (raw: unknown): Patient[] | null => {
   }
 
   if (raw.every(isPatient)) {
-    return sortPatients(
+    return normalizePatients(
       raw.map((patient) => ({
         ...patient,
         monthlyRecords: sortMonthlyRecords(patient.monthlyRecords)
@@ -246,7 +254,7 @@ export const parseImportedPatients = (raw: unknown): Patient[] | null => {
   }
 
   if (raw.every(isLegacyPatientRecord)) {
-    return sortPatients(raw.map((patient) => migrateLegacyPatient(patient)));
+    return normalizePatients(raw.map((patient) => migrateLegacyPatient(patient)));
   }
 
   return null;
@@ -263,12 +271,13 @@ export const toCsv = (patients: Patient[]): string => {
     "documentCreated",
     "signed",
     "submitted",
-    "updatedAt"
+    "updatedAt",
+    "sortOrder"
   ];
 
   const escapeCell = (value: string): string => `"${value.split('"').join('""')}"`;
 
-  const lines = patients.flatMap((patient) =>
+  const lines = sortPatients(patients).flatMap((patient) =>
     sortMonthlyRecords(patient.monthlyRecords).map((record) =>
       [
         patient.id,
@@ -280,7 +289,8 @@ export const toCsv = (patients: Patient[]): string => {
         String(record.documentCreated),
         String(record.signed),
         String(record.submitted),
-        record.updatedAt
+        record.updatedAt,
+        String(patient.sortOrder ?? 0)
       ]
         .map((value) => escapeCell(value))
         .join(",")
@@ -328,8 +338,11 @@ export const fromCsv = (csvText: string): Patient[] => {
           return;
         }
 
+        const parsedSortOrder = Number(row[10]);
+
         grouped.set(patientId, {
           id: patientId,
+          sortOrder: Number.isFinite(parsedSortOrder) ? parsedSortOrder : grouped.size,
           patientName: row[1],
           rehabStartDate: row[2],
           memo: row[3],
@@ -337,7 +350,11 @@ export const fromCsv = (csvText: string): Patient[] => {
         });
       });
 
-    return sortPatients(Array.from(grouped.values()));
+    return normalizePatients(
+      Array.from(grouped.values()).sort(
+        (a, b) => (a.sortOrder ?? Number.MAX_SAFE_INTEGER) - (b.sortOrder ?? Number.MAX_SAFE_INTEGER)
+      )
+    );
   }
 
   const patients = dataRows
@@ -359,7 +376,7 @@ export const fromCsv = (csvText: string): Patient[] => {
       });
     });
 
-  return sortPatients(patients);
+  return normalizePatients(patients);
 };
 
 const parseCsvRows = (text: string): string[][] => {

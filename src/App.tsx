@@ -15,15 +15,27 @@ import {
 
 const SELECTED_MONTH_STORAGE_KEY = "selected-month-page";
 
+type NextMonthDecision = "continue" | "discharged";
+
+type NextMonthReviewState = {
+  month: string;
+  patients: Array<{
+    patientId: string;
+    patientName: string;
+    decision: NextMonthDecision;
+  }>;
+};
+
 const App = () => {
   const {
     currentMonth,
     patients,
     addPatient,
     toggleProgress,
-    createMonthlyRecordsForAll,
+    createMonthlyRecordsForPatients,
     updateMemo,
     updatePatientDetails,
+    deleteMonthlyRecordsByMonth,
     deletePatient
   } = usePatientBoard();
   const [message, setMessage] = useState("");
@@ -37,6 +49,7 @@ const App = () => {
   const [isMonthMenuOpen, setIsMonthMenuOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState<SummaryFilterKey | null>(null);
   const [isAddFeedbackVisible, setIsAddFeedbackVisible] = useState(false);
+  const [nextMonthReview, setNextMonthReview] = useState<NextMonthReviewState | null>(null);
   const messageTimeoutRef = useRef<number | null>(null);
   const addFeedbackTimeoutRef = useRef<number | null>(null);
 
@@ -45,10 +58,22 @@ const App = () => {
   }, [selectedMonth]);
 
   const nextMonth = useMemo(() => shiftMonth(currentMonth, 1), [currentMonth]);
-  const months = useMemo(() => getAvailableMonths(patients, currentMonth), [currentMonth, patients]);
+  const months = useMemo(() => {
+    const available = getAvailableMonths(patients);
+    return available.length > 0 ? available : [currentMonth];
+  }, [currentMonth, patients]);
+
+  useEffect(() => {
+    if (months.includes(selectedMonth)) {
+      return;
+    }
+
+    setSelectedMonth(months[0] ?? currentMonth);
+    setActiveFilter(null);
+  }, [currentMonth, months, selectedMonth]);
 
   const visiblePatients = useMemo(() => {
-    const sorted = sortPatients(patients, selectedMonth);
+    const sorted = sortPatients(patients);
 
     return sorted.filter((patient) => {
       const record = getRecordByMonth(patient, selectedMonth);
@@ -79,6 +104,9 @@ const App = () => {
     [patients, selectedMonth]
   );
 
+  const reviewTargetCount =
+    nextMonthReview?.patients.filter((patient) => patient.decision === "continue").length ?? 0;
+
   const showMessage = (nextMessage: string) => {
     setMessage(nextMessage);
 
@@ -92,16 +120,48 @@ const App = () => {
     }, 2800);
   };
 
-  const handleCreateNextMonthForAll = () => {
-    const createdCount = patients.filter(
-      (patient) => !patient.monthlyRecords.some((record) => record.month === nextMonth)
-    ).length;
+  const handleOpenNextMonthReview = () => {
+    const reviewPatients = sortPatients(patients)
+      .filter((patient) => !patient.monthlyRecords.some((record) => record.month === nextMonth))
+      .map((patient) => ({
+        patientId: patient.id,
+        patientName: patient.patientName,
+        decision: "continue" as const
+      }));
 
-    createMonthlyRecordsForAll(nextMonth);
+    if (reviewPatients.length === 0) {
+      showMessage("すべての患者に来月分レコードがあります。");
+      return;
+    }
+
+    setNextMonthReview({
+      month: nextMonth,
+      patients: reviewPatients
+    });
+  };
+
+  const handleConfirmNextMonthCreate = () => {
+    if (!nextMonthReview) {
+      return;
+    }
+
+    const targetIds = nextMonthReview.patients
+      .filter((patient) => patient.decision === "continue")
+      .map((patient) => patient.patientId);
+    const dischargedCount = nextMonthReview.patients.length - targetIds.length;
+
+    if (targetIds.length === 0) {
+      showMessage("作成対象がありません。継続患者を選択してください。");
+      return;
+    }
+
+    createMonthlyRecordsForPatients(targetIds, nextMonthReview.month);
+    setNextMonthReview(null);
+    setIsMonthMenuOpen(false);
     showMessage(
-      createdCount > 0
-        ? `来月分を ${createdCount} 件作成しました。`
-        : "すべての患者に来月分レコードがあります。"
+      dischargedCount > 0
+        ? `来月分を ${targetIds.length} 件作成しました。退院済み ${dischargedCount} 件は除外しました。`
+        : `来月分を ${targetIds.length} 件作成しました。`
     );
   };
 
@@ -109,6 +169,20 @@ const App = () => {
     setSelectedMonth(month);
     setActiveFilter(null);
     setIsMonthMenuOpen(false);
+  };
+
+  const handleDeleteMonth = (month: string) => {
+    const confirmed = window.confirm(
+      "この月の一括作成データを削除しますか？この操作は元に戻せません。"
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    deleteMonthlyRecordsByMonth(month);
+    setNextMonthReview((current) => (current?.month === month ? null : current));
+    showMessage(`${formatMonth(month)} を削除しました。`);
   };
 
   const handleToggleFilter = (key: SummaryFilterKey) => {
@@ -174,26 +248,135 @@ const App = () => {
               <h2>月ページ</h2>
             </div>
 
-            <button className="primary-button month-menu__bulk-button" type="button" onClick={handleCreateNextMonthForAll}>
+            <button
+              className="primary-button month-menu__bulk-button"
+              type="button"
+              onClick={handleOpenNextMonthReview}
+            >
               来月分を一括作成
             </button>
 
             <div className="month-menu__list">
               {months.map((month) => (
-                <button
-                  key={month}
-                  type="button"
-                  className={`month-menu__item ${month === selectedMonth ? "is-active" : ""}`}
-                  onClick={() => handleSelectMonth(month)}
-                >
-                  <div className="month-menu__item-copy">
-                    <span>{formatMonth(month)}</span>
-                  </div>
-                  {month === currentMonth ? <strong>今月</strong> : null}
-                </button>
+                <div key={month} className="month-menu__item-row">
+                  <button
+                    type="button"
+                    className={`month-menu__item ${month === selectedMonth ? "is-active" : ""}`}
+                    onClick={() => handleSelectMonth(month)}
+                  >
+                    <div className="month-menu__item-copy">
+                      <span>{formatMonth(month)}</span>
+                    </div>
+                    {month === currentMonth ? <strong>今月</strong> : null}
+                  </button>
+
+                  <button
+                    type="button"
+                    className="month-menu__delete-button"
+                    onClick={() => handleDeleteMonth(month)}
+                    aria-label={`${formatMonth(month)} を削除`}
+                  >
+                    削除
+                  </button>
+                </div>
               ))}
             </div>
           </aside>
+        </div>
+      ) : null}
+
+      {nextMonthReview ? (
+        <div className="dialog-backdrop" onClick={() => setNextMonthReview(null)}>
+          <section
+            className="dialog-panel"
+            onClick={(event) => event.stopPropagation()}
+            aria-label="来月分作成の確認"
+          >
+            <div className="dialog-panel__header">
+              <h2>{formatMonth(nextMonthReview.month)} の一括作成</h2>
+              <p>患者ごとに「継続」か「退院済み」かを確認してから作成します。</p>
+            </div>
+
+            <p className="dialog-panel__summary">
+              作成対象 {reviewTargetCount} / {nextMonthReview.patients.length} 人
+            </p>
+
+            <div className="review-list">
+              {nextMonthReview.patients.map((patient, index) => (
+                <article key={patient.patientId} className="review-card">
+                  <div className="review-card__copy">
+                    <span>{index + 1}</span>
+                    <strong>{patient.patientName}</strong>
+                  </div>
+
+                  <div
+                    className="decision-group"
+                    role="group"
+                    aria-label={`${patient.patientName} の来月判定`}
+                  >
+                    <button
+                      type="button"
+                      className={`decision-chip ${patient.decision === "continue" ? "is-active" : ""}`}
+                      onClick={() =>
+                        setNextMonthReview((current) =>
+                          current
+                            ? {
+                                ...current,
+                                patients: current.patients.map((currentPatient) =>
+                                  currentPatient.patientId === patient.patientId
+                                    ? { ...currentPatient, decision: "continue" }
+                                    : currentPatient
+                                )
+                              }
+                            : current
+                        )
+                      }
+                    >
+                      継続
+                    </button>
+                    <button
+                      type="button"
+                      className={`decision-chip ${patient.decision === "discharged" ? "is-active is-danger" : ""}`}
+                      onClick={() =>
+                        setNextMonthReview((current) =>
+                          current
+                            ? {
+                                ...current,
+                                patients: current.patients.map((currentPatient) =>
+                                  currentPatient.patientId === patient.patientId
+                                    ? { ...currentPatient, decision: "discharged" }
+                                    : currentPatient
+                                )
+                              }
+                            : current
+                        )
+                      }
+                    >
+                      退院済み
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            <div className="dialog-panel__actions">
+              <button
+                type="button"
+                className="dialog-button dialog-button--ghost"
+                onClick={() => setNextMonthReview(null)}
+              >
+                キャンセル
+              </button>
+              <button
+                type="button"
+                className="dialog-button dialog-button--primary"
+                onClick={handleConfirmNextMonthCreate}
+                disabled={reviewTargetCount === 0}
+              >
+                {reviewTargetCount} 人で作成する
+              </button>
+            </div>
+          </section>
         </div>
       ) : null}
 

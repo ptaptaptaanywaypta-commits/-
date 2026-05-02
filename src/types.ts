@@ -11,6 +11,7 @@ export type MonthlyRecord = {
 
 export type Patient = {
   id: string;
+  sortOrder?: number;
   patientName: string;
   rehabStartDate: string;
   memo: string;
